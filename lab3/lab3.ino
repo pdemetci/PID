@@ -1,3 +1,7 @@
+#include <Wire.h>
+#include <Adafruit_MotorShield.h>
+#include "utility/Adafruit_PWMServoDriver.h"
+
 // ============== Global Variables and Parameters ============= //
 
 // Constant Variables 
