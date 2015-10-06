@@ -11,6 +11,7 @@
 
 // ================ Global Objects and Variables ==================== //
 
+<<<<<<< HEAD
 // Input Pins
 const int analogInPin1 = A0; 
 const int analogInPin2 = A1;
@@ -24,6 +25,16 @@ int current_pos // variable for current position of motor
 int kp;
 int kd;
 int ki;
+=======
+// Motor Variables
+int startSpeed = 50; // default speed
+
+// Sensor Variables: 
+int output1;
+int output2;
+float sensorVol1;
+float sensorVol2;
+>>>>>>> FETCH_HEAD
 
 int error;
 int lastError;
@@ -53,6 +64,7 @@ void errorCalc(){
   
 }
 
+<<<<<<< HEAD
 
 void pidCalc(){
   poportional = error;
@@ -88,6 +100,15 @@ void calcTurn(){  //Restricting the error value between +256.
 
 
 
+=======
+void runSensor() {
+  output1= analogRead(A1);
+  output2= analogRead(A0);
+  sensorVol1= output1* (5.0/1023.0);
+  sensorVol2= output2 * (5.0/1023.0);
+  //We may want to return sensorVol values for using it in the loop
+}
+>>>>>>> FETCH_HEAD
 
 // ========================= Main Methods =============================== //
 void setup() {
@@ -98,8 +119,13 @@ void setup() {
   dir = FORWARD;
 
 }
-
 void loop() {
+<<<<<<< HEAD
   
+=======
+  runSensor()
+  myMotor1->run(dir);
+  myMotor2->run(dir);
+>>>>>>> FETCH_HEAD
 
 }
