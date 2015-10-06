@@ -58,20 +58,20 @@ void readSensorVal(){
   rSensor = analogRead(analogInPin2);
 
 // On center
-  if (lSensor =< setPoint && rSensor =< setPoint){
+  if (lSensor <= setPoint && rSensor <= setPoint){
     lSpeed = defSpeed;
     rSpeed = defSpeed;
   }
 
 // Tilted left
-  if (lSensor =< setPoint && rSensor > setPoint){
+  if (lSensor <= setPoint && rSensor > setPoint){
     errorVal = rSensor - setPoint;
     lSpeed = defSpeed;
     rSpeed = defSpeed + turnVal;
   }
 
 // Tilted right
-  if (lSensor > setPoint && rSensor =< setPoint){
+  if (lSensor > setPoint && rSensor <= setPoint){
     errorVal = lSensor - setPoint;
     lSpeed = defSpeed + turnVal;
     rSpeed = defSpeed;
@@ -111,6 +111,7 @@ void loop() {
           break;
         }
      }
+  }
 
   // Calculate PID
   pidCalc();
@@ -121,5 +122,5 @@ void loop() {
   // Apply speed on motor
   lMotor->setSpeed(lSpeed);
   rMotor->setSpeed(rSpeed);
-   
+  
 }
