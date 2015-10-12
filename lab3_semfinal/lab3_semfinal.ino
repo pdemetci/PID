@@ -7,7 +7,7 @@
 // Constant Variables 
 const int analogInPin1 = A0;  // Input pins
 const int analogInPin2 = A1;
-const int setPoint = 200;     // Set wanted default position
+const int setPoint = 800;     // Set wanted default position
 
 // Counters
 int lSensor = 0;        // Variable for left sensor value
@@ -30,7 +30,7 @@ int turnVal = 0;      // Variable for total PID value
 // Other Variables
 int dir;                // Variable for motor direction
 int maxSpeed = 255;
-int defSpeed = 200;      // Set default speed of motors
+int defSpeed = 20;      // Set default speed of motors
 
 
 // =========================== Motor Settings ========================== //
@@ -39,8 +39,8 @@ int defSpeed = 200;      // Set default speed of motors
 Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 
 // Create two motors
-Adafruit_DCMotor *lMotor = AFMS.getMotor(3); //right wheel
-Adafruit_DCMotor *rMotor = AFMS.getMotor(4); //left wheel
+Adafruit_DCMotor *lMotor = AFMS.getMotor(4); //right wheel
+Adafruit_DCMotor *rMotor = AFMS.getMotor(3); //left wheel
 
  // ======================== Other Methods ================== //
 
@@ -67,24 +67,24 @@ void readSensorVal(){
 // Tilted left
   if (lSensor <= setPoint && rSensor > setPoint){
     errorVal = abs(rSensor - setPoint);
-    lSpeed = defSpeed;
-    if (defSpeed + turnVal <= 255){
-      rSpeed = abs(defSpeed + turnVal);
-    }
-    else{
-      rSpeed = 255;
-    }
-  }
-
-// Tilted right
-  if (lSensor > setPoint && rSensor <= setPoint){
-    errorVal = abs(lSensor - setPoint);
     rSpeed = defSpeed;
     if (defSpeed + turnVal <= 255){
       lSpeed = abs(defSpeed + turnVal);
     }
     else{
       lSpeed = 255;
+    }
+  }
+
+// Tilted right
+  if (lSensor > setPoint && rSensor <= setPoint){
+    errorVal = abs(lSensor - setPoint);
+    lSpeed = defSpeed;
+    if (defSpeed + turnVal <= 255){
+      rSpeed = abs(defSpeed + turnVal);
+    }
+    else{
+      rSpeed = 255;
     }
     
   }
