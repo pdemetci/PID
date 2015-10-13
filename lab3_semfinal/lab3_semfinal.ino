@@ -15,12 +15,14 @@ int rSensor = 0;        // Variable for right sensor value
 int lSpeed = 0;         // Variable for left motor speed 
 int rSpeed = 0;         // Variable for right motor speed
 
+int dif = 0;            // Variable for differense between sensor values
+
 int errorVal = 0;       // Variable for error value
 int prevError = 0;      // Variable for previous error value
 
 // Variables for PID
 float kp = 0.05;      // Variables for PID parameters
-float kd = 0.01;
+float kd = 0.005;
 float ki = 0.00;
 int proportional = 0;
 int derivative = 0;
@@ -30,7 +32,7 @@ int turnVal = 0;      // Variable for total PID value
 // Other Variables
 int dir;                // Variable for motor direction
 int maxSpeed = 255;
-int defSpeed = 20;      // Set default speed of motors
+int defSpeed = 15;      // Set default speed of motors
 
 
 // =========================== Motor Settings ========================== //
@@ -46,9 +48,9 @@ Adafruit_DCMotor *rMotor = AFMS.getMotor(3); //left wheel
 
 // Calculate PID value
 void pidCalc(){
-  proportional = errorVal;
+  proportional = abs(dif);
   integral += proportional;
-  //derivative = errorVal - prevError;
+  //derivative = errroVal - prevError;
 
   turnVal = proportional*kp + integral*ki;// + derivative*kd;
 }
@@ -57,38 +59,67 @@ void pidCalc(){
 void readSensorVal(){
   lSensor = analogRead(analogInPin1);
   rSensor = analogRead(analogInPin2);
+  dif = lSensor - rSensor;
 
-// On center
-  if (lSensor <= setPoint && rSensor <= setPoint){
+
+  if (abs(dif) <= 20){
     lSpeed = defSpeed;
     rSpeed = defSpeed;
   }
-
-// Tilted left
-  if (lSensor <= setPoint && rSensor > setPoint){
-    errorVal = abs(rSensor - setPoint);
-    rSpeed = defSpeed;
-    if (defSpeed + turnVal <= 255){
-      lSpeed = abs(defSpeed + turnVal);
+  else{
+    if (dif > 0){
+      lSpeed = defSpeed;
+      if(defSpeed + turnVal <= 255){
+      rSpeed = defSpeed + turnVal;
     }
-    else{
-      lSpeed = 255;
+      else{
+        rSpeed = 255;
+      }
     }
-  }
-
-// Tilted right
-  if (lSensor > setPoint && rSensor <= setPoint){
-    errorVal = abs(lSensor - setPoint);
-    lSpeed = defSpeed;
-    if (defSpeed + turnVal <= 255){
-      rSpeed = abs(defSpeed + turnVal);
+    if (dif < 0){
+      rSpeed = defSpeed;
+      if(defSpeed + turnVal <= 255){
+      lSpeed = defSpeed + turnVal;
     }
-    else{
-      rSpeed = 255;
+      else{
+        lSpeed = 255;
+      }
     }
-    
   }
 }
+
+  
+//// On center
+//  if (lSensor <= setPoint && rSensor <= setPoint){
+//    lSpeed = defSpeed;
+//    rSpeed = defSpeed;
+//  }
+//
+//// Tilted left
+//  if (lSensor <= setPoint && rSensor > setPoint){
+//    errorVal = abs(rSensor - setPoint);
+//    rSpeed = defSpeed;
+//    if (defSpeed + turnVal <= 255){
+//      lSpeed = abs(defSpeed + turnVal);
+//    }
+//    else{
+//      lSpeed = 255;
+//    }
+//  }
+//
+//// Tilted right
+//  if (lSensor > setPoint && rSensor <= setPoint){
+//    errorVal = abs(lSensor - setPoint);
+//    lSpeed = defSpeed;
+//    if (defSpeed + turnVal <= 255){
+//      rSpeed = abs(defSpeed + turnVal);
+//    }
+//    else{
+//      rSpeed = 255;
+//    }
+//    
+//  }
+
 
 // ===================== Main Methods ======================= //
 void setup() {
@@ -129,9 +160,9 @@ void loop() {
 
 
   Serial.print("kp: ");
-  Serial.print(kp);
+  Serial.print(kp,4);
   Serial.print(",");
-  Serial.print(ki);
+  Serial.print(ki,4);
 //  Serial.print(",");
 //  Serial.println(kd);
   
