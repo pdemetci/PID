@@ -16,6 +16,7 @@ int lSpeed = 0;         // Variable for left motor speed
 int rSpeed = 0;         // Variable for right motor speed
 
 int dif = 0;            // Variable for differense between sensor values
+int prevProportional = 0;
 
 int errorVal = 0;       // Variable for error value
 int prevError = 0;      // Variable for previous error value
@@ -24,6 +25,7 @@ int prevError = 0;      // Variable for previous error value
 float kp = 0.05;      // Variables for PID parameters
 float kd = 0.005;
 float ki = 0.00;
+float blank = 0;
 int proportional = 0;
 int derivative = 0;
 int integral = 0;
@@ -34,6 +36,8 @@ int dir;                // Variable for motor direction
 int maxSpeed = 255;
 int defSpeed = 15;      // Set default speed of motors
 
+int prevTime = 0;
+int dt = 0;
 
 // =========================== Motor Settings ========================== //
 
@@ -49,10 +53,12 @@ Adafruit_DCMotor *rMotor = AFMS.getMotor(3); //left wheel
 // Calculate PID value
 void pidCalc(){
   proportional = abs(dif);
-  integral += proportional;
-  //derivative = errroVal - prevError;
+  integral += proportional*dt;
+  derivative = abs(proportional - prevProportional)/dt;
 
-  turnVal = proportional*kp + integral*ki;// + derivative*kd;
+  prevProportional = proportional;
+  
+  turnVal = proportional*kp + integral*ki + derivative*kd;
 }
 
 // Calculate sensor value and set speed according to value
@@ -62,7 +68,7 @@ void readSensorVal(){
   dif = lSensor - rSensor;
 
 
-  if (abs(dif) <= 20){
+  if (abs(dif) <= 10){
     lSpeed = defSpeed;
     rSpeed = defSpeed;
   }
@@ -79,13 +85,14 @@ void readSensorVal(){
     if (dif < 0){
       rSpeed = defSpeed;
       if(defSpeed + turnVal <= 255){
-      lSpeed = defSpeed + turnVal;
+      lSpeed = defSpeed + 1.2*turnVal;
     }
       else{
         lSpeed = 255;
       }
     }
   }
+
 }
 
   
@@ -127,17 +134,16 @@ void setup() {
   AFMS.begin();
   lMotor->setSpeed(defSpeed); // Set initial speed of motor 1
   rMotor->setSpeed(defSpeed); // Set initial speed of motor 2
-  dir = FORWARD;
-
+  dir = BACKWARD;
 }
 
 void loop() {
-
  //Input values of PID parameters through serial port
   if (Serial.available() > 0){
     kp = Serial.parseFloat();
     ki = Serial.parseFloat();
     kd = Serial.parseFloat();
+    blank = Serial.parseFloat();
 //      for (int x = 0; x<3; x++) {
 //        switch (x) {
 //          case 0:
@@ -159,12 +165,12 @@ void loop() {
   }
 
 
-  Serial.print("kp: ");
+  Serial.print("kp,ki,kd: ");
   Serial.print(kp,4);
   Serial.print(",");
-  Serial.print(ki,4);
-//  Serial.print(",");
-//  Serial.println(kd);
+  Serial.print(ki,5);
+  Serial.print(",");
+  Serial.print(kd,4);
   
   // Run motors
   lMotor->run(dir);
@@ -188,5 +194,9 @@ void loop() {
   Serial.print(lSpeed);
   Serial.print(",");
   Serial.println(rSpeed);
-  
+
+  int currTime = millis();
+  dt = currTime - prevTime;
+  prevTime = currTime;
+
 }

@@ -96,7 +96,7 @@ void setup() {
   AFMS.begin();
   lMotor->setSpeed(defSpeed); // Set initial speed of motor 1
   rMotor->setSpeed(defSpeed); // Set initial speed of motor 2
-  dir = FORWARD;
+  dir = BACKWARD;
 
 }
 
